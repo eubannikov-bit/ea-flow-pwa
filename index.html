@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#9a3154">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ea.flow">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>ea.flow</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="monthTitle">Сегодня</p>
+          <h1>ea.flow</h1>
+        </div>
+        <button class="icon-button" id="syncButton" type="button" aria-label="Синхронизировать">
+          <span aria-hidden="true">↻</span>
+        </button>
+      </header>
+
+      <div class="status-line" id="statusLine">Готово</div>
+
+      <main class="content">
+        <section class="tab-panel active" id="tab-money" aria-labelledby="tab-money-button">
+          <button class="hero-card" id="safeCard" type="button">
+            <span class="metric-label">Можно сегодня</span>
+            <strong id="safeAmount">0 р.</strong>
+            <span id="safeDetail">Расчет по переменным расходам</span>
+          </button>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Доход</span>
+              <strong id="incomeAmount">0 р.</strong>
+            </article>
+            <article class="metric-card">
+              <span>Расходы</span>
+              <strong id="expenseAmount">0 р.</strong>
+            </article>
+            <article class="metric-card">
+              <span>Переменные</span>
+              <strong id="variableLeftAmount">0 р.</strong>
+            </article>
+            <article class="metric-card">
+              <span>Резерв</span>
+              <strong id="reserveAmount">0 р.</strong>
+            </article>
+          </div>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>Последние операции</h2>
+              <button class="text-button" id="addFromMoneyButton" type="button">Добавить</button>
+            </div>
+            <div class="list" id="recentList"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="tab-operations" aria-labelledby="tab-operations-button">
+          <div class="section-title">
+            <h2>Быстро добавить</h2>
+            <button class="text-button" id="addOperationButton" type="button">Новая</button>
+          </div>
+          <div class="quick-grid" id="quickGrid"></div>
+
+          <div class="toolbar">
+            <select id="operationFilter" aria-label="Тип операций">
+              <option value="all">Все операции</option>
+              <option value="expense">Расходы</option>
+              <option value="income">Доходы</option>
+            </select>
+            <input id="operationSearch" type="search" placeholder="Поиск">
+          </div>
+
+          <div class="list" id="operationsList"></div>
+        </section>
+
+        <section class="tab-panel" id="tab-budget" aria-labelledby="tab-budget-button">
+          <section class="summary-card">
+            <div>
+              <span class="metric-label">Бюджет</span>
+              <strong id="budgetSpent">0 р.</strong>
+            </div>
+            <div class="progress-track">
+              <div id="budgetProgress" class="progress-fill"></div>
+            </div>
+            <p id="budgetCaption">План месяца не задан</p>
+          </section>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>Подсказки</h2>
+            </div>
+            <div class="list" id="budgetInsights"></div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>Лимиты</h2>
+            </div>
+            <div class="list" id="budgetLimits"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="tab-settings" aria-labelledby="tab-settings-button">
+          <section class="summary-card">
+            <label class="field-label" for="apiUrlInput">Google Apps Script URL</label>
+            <textarea id="apiUrlInput" rows="4" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+            <div class="button-row">
+              <button class="primary-button" id="saveSettingsButton" type="button">Сохранить</button>
+              <button class="secondary-button" id="clearCacheButton" type="button">Сбросить кэш</button>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <nav class="tabbar" aria-label="Разделы">
+        <button class="tab-button active" id="tab-money-button" type="button" data-tab="money">
+          <span aria-hidden="true">₽</span>
+          <span>Деньги</span>
+        </button>
+        <button class="tab-button" id="tab-operations-button" type="button" data-tab="operations">
+          <span aria-hidden="true">±</span>
+          <span>Операции</span>
+        </button>
+        <button class="tab-button" id="tab-budget-button" type="button" data-tab="budget">
+          <span aria-hidden="true">▥</span>
+          <span>Бюджет</span>
+        </button>
+        <button class="tab-button" id="tab-settings-button" type="button" data-tab="settings">
+          <span aria-hidden="true">⚙</span>
+          <span>Настройки</span>
+        </button>
+      </nav>
+    </div>
+
+    <dialog class="modal" id="safeModal">
+      <form method="dialog" class="modal-panel full">
+        <div class="modal-header">
+          <div>
+            <span class="metric-label">Расчет</span>
+            <h2>Можно сегодня</h2>
+          </div>
+          <button class="icon-button" value="close" aria-label="Закрыть" type="submit">×</button>
+        </div>
+        <div class="modal-body" id="safeModalBody"></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="transactionModal">
+      <form class="modal-panel full" id="transactionForm">
+        <div class="modal-header">
+          <div>
+            <span class="metric-label" id="transactionModeLabel">Операция</span>
+            <h2 id="transactionTitle">Новая операция</h2>
+          </div>
+          <button class="icon-button" id="closeTransactionButton" aria-label="Закрыть" type="button">×</button>
+        </div>
+
+        <div class="modal-body form-grid">
+          <div class="segmented" role="tablist" aria-label="Тип операции">
+            <button type="button" class="segment active" data-type="expense">Расход</button>
+            <button type="button" class="segment" data-type="income">Доход</button>
+          </div>
+
+          <label class="field-label">
+            Сумма
+            <input id="amountInput" inputmode="decimal" autocomplete="off" placeholder="0">
+          </label>
+
+          <label class="field-label">
+            Категория
+            <select id="categorySelect"></select>
+          </label>
+
+          <label class="field-label">
+            Участник
+            <select id="memberSelect"></select>
+          </label>
+
+          <label class="field-label">
+            Дата
+            <input id="dateInput" type="date">
+          </label>
+
+          <label class="field-label">
+            Комментарий
+            <input id="commentInput" autocomplete="off" placeholder="Необязательно">
+          </label>
+
+          <p class="form-error" id="formError"></p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="danger-button hidden" id="deleteTransactionButton" type="button">Удалить</button>
+          <button class="primary-button" id="saveTransactionButton" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
